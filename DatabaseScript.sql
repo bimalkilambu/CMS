@@ -1,0 +1,131 @@
+CREATE DATABASE CMS
+GO
+USE CMS
+GO
+--DROP DATABASE CMS
+
+CREATE TABLE Customers
+(
+	CustomerId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	FirstName VARCHAR(100),
+	LastName VARCHAR(100),
+	[Address] VARCHAR(500),
+	Email VARCHAR(200),
+	ContactNumber VARCHAR(25),
+	Gender VARCHAR(10),
+	IsArchive BIT NOT NULL DEFAULT 0,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+CREATE TABLE UserTypes
+(
+	UserTypeId  INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	[Description] VARCHAR(100),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+CREATE TABLE Users
+(
+	UserId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	FirstName VARCHAR(100),
+	LastName VARCHAR(100),
+	[Address] VARCHAR(500),
+	Email VARCHAR(200),
+	ContactNumber VARCHAR(25),
+	Gender VARCHAR(10),
+	Username VARCHAR(10),
+	[Password] VARCHAR(MAX),
+	UserTypeId INT NOT NULL FOREIGN KEY REFERENCES UserTypes(UserTypeId),
+	IsActive BIT DEFAULT 1,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+CREATE TABLE Products
+(
+	ProductId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	ProductName VARCHAR(200),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+
+CREATE TABLE PaymentTypes
+(
+	PaymentTypeId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	PaymentType VARCHAR(200),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+CREATE TABLE Sales
+(
+	SaleId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	UserId INT NOT NULL FOREIGN KEY REFERENCES Users(UserId),
+	CustomerId INT NOT NULL FOREIGN KEY REFERENCES Customers(CustomerId),
+	PaymentId INT, --FOREIGN KEY REFERENCES Payments(PaymentId)
+	Amount MONEY NOT NULL,
+	TaxAmount MONEY,
+	TotalAmount  MONEY NOT NULL,
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+CREATE TABLE Payments
+(
+	PaymentId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	PaymentTypeId INT NOT NULL FOREIGN KEY REFERENCES PaymentTypes(PaymentTypeId),
+	SaleId INT NOT NULL FOREIGN KEY REFERENCES Sales(SaleId),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+Go
+CREATE TABLE SaleItems
+(
+	SalesItemId INT IDENTITY (1,1) PRIMARY KEY,
+	[Guid] UNIQUEIDENTIFIER UNIQUE NOT NULL DEFAULT NEWID(),
+	SaleId INT NOT NULL FOREIGN KEY REFERENCES Sales(SaleId),
+	ProductId INT NOT NULL FOREIGN KEY REFERENCES Products(ProductId),
+	DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+	DateModified DATETIME,
+	DateDeleted DATETIME
+)
+GO
+ALTER TABLE Sales 
+	ADD FOREIGN KEY (PaymentId) REFERENCES Payments(PaymentId)
+GO
+
+ALTER PROCEDURE spGetCustomerList
+(
+	@SearchText VARCHAR(100),
+	@pageSize INT,
+	@page INT,
+	@IsArchive BIT
+)
+AS 
+BEGIN
+	SELECT @SearchText = '%' + RTRIM(@SearchText) + '%';
+
+	SELECT CAST(Guid AS VARCHAR(50)) AS CustomerId, Firstname, Lastname, (ISNULL(Firstname + ' ','')  + ISNULL(Lastname,'')) AS Fullname, Address, Email, ContactNumber AS Contact
+		FROM Customers
+		WHERE	(Firstname LIKE @SearchText OR Lastname LIKE @SearchText OR Address LIKE @SearchText OR Email LIKE @SearchText OR ContactNumber LIKE @SearchText) AND 
+				DateDeleted IS NULL AND IsArchive = @IsArchive 
+		ORDER BY CustomerId
+		OFFSET ((@page - 1) * @pageSize) ROWS FETCH NEXT (@pageSize) ROWS ONLY
+END

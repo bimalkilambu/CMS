@@ -1,0 +1,139 @@
+﻿@using CustomerManagementSystem.DTO;
+@model List<Customer>
+
+<div class="mt-4">
+    <table class="table table-hover">
+        <thead>
+            <tr class="table-primary">
+                @*<th scope="col"><input type="checkbox" id="headerCheckBox" /></th>*@
+                <th scope="row">
+                    <div class="checkbox-custom">
+                        <label>
+                            <input type="checkbox" id="headerCheckBox"  />
+                            <b class="chkBoxCol"></b>
+                        </label>
+                    </div>
+                </th>
+                <th scope="col">Full name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Email</th>
+                <th scope="col">Contact</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <tr id="@item.CustomerId" class="clickable">
+                        @*<th scope="row"><input type="checkbox" class="chkCustomer" /></th>*@
+                        <th scope="row">
+                            <div class="checkbox-custom">
+                                <label>
+                                    <input type="checkbox" class="chkCustomer" />
+                                    <b class="chkBoxCol"></b>
+                                </label>
+                            </div>
+                        </th>
+                        <td>@item.Fullname</td>
+                        <td>@item.Address</td>
+                        <td>@item.Email</td>
+                        <td>@item.Contact</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6">No data found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (ViewBag.TotalPage > 1)
+{
+    <div style="margin: 30px 40px 0 0">
+        <ul class="pagination justify-content-end">
+            <li class="page-item prev" value="-1"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-4)">&#171;</a></li>
+            <li class="page-item prev" value="-1"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-3)">&#8249;</a></li>
+            @if (ViewBag.TotalPage > 5)
+            {
+                if (ViewBag.CurrentPage > 3)
+                {
+                    if (ViewBag.CurrentPage < (ViewBag.TotalPage - 2))
+                    {
+                        <li class="page-item" value="@(ViewBag.CurrentPage - 2)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.CurrentPage - 2))">@(ViewBag.CurrentPage - 2)</a></li>
+                        <li class="page-item" value="@(ViewBag.CurrentPage - 1)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.CurrentPage - 1))">@(ViewBag.CurrentPage - 1)</a></li>
+                        <li class="page-item" value="@(ViewBag.CurrentPage)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.CurrentPage))">@(ViewBag.CurrentPage)</a></li>
+                        <li class="page-item" value="@(ViewBag.CurrentPage + 1)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.CurrentPage + 1))">@(ViewBag.CurrentPage + 1)</a></li>
+                        <li class="page-item" value="@(ViewBag.CurrentPage + 2)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.CurrentPage + 2))">@(ViewBag.CurrentPage + 2)</a></li>
+                    }
+                    else
+                    {
+                        <li class="page-item" value="@(ViewBag.TotalPage - 4)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.TotalPage - 4))">@(ViewBag.TotalPage - 4)</a></li>
+                        <li class="page-item" value="@(ViewBag.TotalPage - 3)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.TotalPage - 3))">@(ViewBag.TotalPage - 3)</a></li>
+                        <li class="page-item" value="@(ViewBag.TotalPage - 2)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.TotalPage - 2))">@(ViewBag.TotalPage - 2)</a></li>
+                        <li class="page-item" value="@(ViewBag.TotalPage - 1)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.TotalPage - 1))">@(ViewBag.TotalPage - 1)</a></li>
+                        <li class="page-item" value="@(ViewBag.TotalPage)"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@(ViewBag.TotalPage))">@(ViewBag.TotalPage)</a></li>
+                    }
+
+                }
+                else
+                {
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        <li class="page-item" value="@i"><a class="page-link" href="javascript:void(0);" onClick="requestPage(@i)">@i</a></li>
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 1; i <= ViewBag.TotalPage; i++)
+                {
+                    <li class="page-item" value="@i"><a class="page-link" href="javascript:void(0);" onclick="requestPage(@i)">@i</a></li>
+                }
+            }
+            <li class="page-item next"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-2)">&#8250;</a></li>
+            <li class="page-item next"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-1)">&#187;</a></li>
+        </ul>
+    </div>
+}
+else
+{
+    <div style="margin: 30px 40px 0 0">
+        <ul class="pagination justify-content-end">
+            <li class="page-item prev" value="-1"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-4)">&#171;</a></li>
+            <li class="page-item prev" value="-1"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-3)">&#8249;</a></li>
+            <li class="page-item" value="1"><a class="page-link" href="javascript:void(0);" onClick="requestPage(1)">1</a></li>
+            <li class="page-item next"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-2)">&#8250;</a></li>
+            <li class="page-item next"><a class="page-link" href="javascript:void(0);" onclick="requestPage(-1)">&#187;</a></li>
+        </ul>
+    </div>
+}
+
+<script>
+    var currentPage = @ViewBag.CurrentPage;
+    var totalPage = @ViewBag.TotalPage;
+    $(".page-item[value=" + currentPage + "]").addClass("active");
+
+    if (currentPage == 1) {
+        $(".prev").addClass("disabled");
+    }
+
+    if (currentPage == totalPage) {
+        $(".next").addClass("disabled");
+    }
+
+    $('.clickable').on("click", function () {
+        if (event.target.className == "chkCustomer" || event.target.className == "chkBoxCol" || event.target.className == "checkbox-custom") return;
+        var id = $(this).closest('tr').attr('id');
+        window.location.href = baseUrl + "Customer/Detail?id=" + id;
+    });
+
+    $('#headerCheckBox').on('change', function () {
+        var checked = $('#headerCheckBox').is(':checked');
+        $('.chkCustomer').prop('checked', checked);
+    });
+</script>
